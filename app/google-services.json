@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "955858279210",
+    "firebase_url": "https://socialnetwork-29ae4.firebaseio.com",
+    "project_id": "socialnetwork-29ae4",
+    "storage_bucket": "socialnetwork-29ae4.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:955858279210:android:fe70939c8d3beab3",
+        "android_client_info": {
+          "package_name": "com.logistics.alucard.socialnetwork"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "955858279210-jb17ja1gl48bp4et50flmbfmrseameei.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.logistics.alucard.socialnetwork",
+            "certificate_hash": "f83c3e441ef0841162057986c111a989b8b5a004"
+          }
+        },
+        {
+          "client_id": "955858279210-aa4cg0k4sppfkg7cav16bg8c38qhpper.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCPLVQbs0jwdd9MsUYFZGfAmwJQqgmBgrQ"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "955858279210-aa4cg0k4sppfkg7cav16bg8c38qhpper.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
