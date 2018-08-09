@@ -17,6 +17,8 @@ import com.logistics.alucard.socialnetwork.Profile.AccountSettingsActivity;
 import com.logistics.alucard.socialnetwork.R;
 import com.logistics.alucard.socialnetwork.Utils.Permissions;
 
+import static android.app.Activity.RESULT_OK;
+
 public class PhotoFragment extends Fragment {
 
     private static final String TAG = "PhotoFragment";
@@ -69,31 +71,35 @@ public class PhotoFragment extends Fragment {
         if(requestCode == CAMERA_REQUEST_CODE) {
             Log.d(TAG, "onActivityResult: done taking a photo");
             Log.d(TAG, "onActivityResult: attempting to navigate to share screen");
+            //if taking photo is canceled and hit the back button avoid nullPointException
+            if(resultCode == RESULT_OK && data.getAction() != null) {
+                Bitmap bitmap;
+                bitmap = (Bitmap) data.getExtras().get("data"); //"data" keyword argument
+                //navigate to final share screen to publish the photo
+                if (isRootTask()) {
+                    try {
+                        Log.d(TAG, "onActivityResult: recieved new bitmap from camera:" + bitmap);
+                        Intent intent = new Intent(getActivity(), NextActivity.class);
+                        intent.putExtra(getString(R.string.selected_bitmap), bitmap);
+                        startActivity(intent);
+                    } catch (NullPointerException e) {
+                        Log.d(TAG, "onActivityResult: NullPointerException " + e.getMessage());
+                    }
+                } else {
+                    try {
+                        Log.d(TAG, "onActivityResult: recieved new bitmap from camera:" + bitmap);
+                        Intent intent = new Intent(getActivity(), AccountSettingsActivity.class);
+                        intent.putExtra(getString(R.string.selected_bitmap), bitmap);
+                        intent.putExtra(getString(R.string.return_to_fragment), getString(R.string.edit_profile_fragment));
+                        startActivity(intent);
+                        getActivity().finish();
+                    } catch (NullPointerException e) {
+                        Log.d(TAG, "onActivityResult: NullPointerException " + e.getMessage());
+                    }
 
-            Bitmap bitmap;
-            bitmap = (Bitmap) data.getExtras().get("data"); //"data" keyword argument
-            //navigate to final share screen to publish the photo
-            if(isRootTask()) {
-                try {
-                    Log.d(TAG, "onActivityResult: recieved new bitmap from camera:" + bitmap);
-                    Intent intent = new Intent(getActivity(), NextActivity.class);
-                    intent.putExtra(getString(R.string.selected_bitmap), bitmap);
-                    startActivity(intent);
-                } catch (NullPointerException e) {
-                    Log.d(TAG, "onActivityResult: NullPointerException " + e.getMessage());
                 }
             } else {
-                try {
-                    Log.d(TAG, "onActivityResult: recieved new bitmap from camera:" + bitmap);
-                    Intent intent = new Intent(getActivity(), AccountSettingsActivity.class);
-                    intent.putExtra(getString(R.string.selected_bitmap), bitmap);
-                    intent.putExtra(getString(R.string.return_to_fragment), getString(R.string.edit_profile_fragment));
-                    startActivity(intent);
-                    getActivity().finish();
-                } catch (NullPointerException e) {
-                    Log.d(TAG, "onActivityResult: NullPointerException " + e.getMessage());
-                }
-
+                getActivity().finish();
             }
 
         }

@@ -309,7 +309,7 @@ public class FirebaseMethods {
                 .child(userID).setValue(user);
 
         UserAccountSettings userAccountSettings = new UserAccountSettings(
-                description, username, 0, 0, 0,
+                description, username, 0, 0, 0, 1,
                 profile_photo, StringManipulation.condenseUsername(username), website, userID
         );
 
@@ -348,8 +348,13 @@ public class FirebaseMethods {
                     .setValue(description);
         }
 
-        if(phoneNumber == 0) {
+        if(phoneNumber != 1) {
+            Log.d(TAG, "updateUserAccountSettings: ********phoneNumber is : " + phoneNumber);
             myRef.child(mContext.getString(R.string.dbname_user_account_settings))
+                    .child(userID)
+                    .child(mContext.getString(R.string.field_phone_number))
+                    .setValue(phoneNumber);
+            myRef.child(mContext.getString(R.string.dbname_users))
                     .child(userID)
                     .child(mContext.getString(R.string.field_phone_number))
                     .setValue(phoneNumber);

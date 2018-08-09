@@ -10,19 +10,21 @@ public class UserAccountSettings implements Parcelable {
     private long followers;
     private long following;
     private long posts;
+    private long phone_number;
     private String profile_photo;
     private String username;
     private String website;
     private String user_id;
 
     public UserAccountSettings(String description, String display_name,
-                               long followers, long following, long posts, String profile_photo,
+                               long followers, long following, long posts, long phone_number, String profile_photo,
                                String username, String website, String user_id) {
         this.description = description;
         this.display_name = display_name;
         this.followers = followers;
         this.following = following;
         this.posts = posts;
+        this.phone_number = phone_number;
         this.profile_photo = profile_photo;
         this.username = username;
         this.website = website;
@@ -38,6 +40,7 @@ public class UserAccountSettings implements Parcelable {
         followers = in.readLong();
         following = in.readLong();
         posts = in.readLong();
+        phone_number = in.readLong();
         profile_photo = in.readString();
         username = in.readString();
         website = in.readString();
@@ -128,6 +131,14 @@ public class UserAccountSettings implements Parcelable {
         this.website = website;
     }
 
+    public long getPhone_number() {
+        return phone_number;
+    }
+
+    public void setPhone_number(long phone_number) {
+        this.phone_number = phone_number;
+    }
+
     @Override
     public String toString() {
         return "UserAccountSettings{" +
@@ -136,9 +147,11 @@ public class UserAccountSettings implements Parcelable {
                 ", followers=" + followers +
                 ", following=" + following +
                 ", posts=" + posts +
+                ", phone_number=" + phone_number +
                 ", profile_photo='" + profile_photo + '\'' +
                 ", username='" + username + '\'' +
                 ", website='" + website + '\'' +
+                ", user_id='" + user_id + '\'' +
                 '}';
     }
 
@@ -154,6 +167,7 @@ public class UserAccountSettings implements Parcelable {
         dest.writeLong(followers);
         dest.writeLong(following);
         dest.writeLong(posts);
+        dest.writeLong(phone_number);
         dest.writeString(profile_photo);
         dest.writeString(username);
         dest.writeString(website);

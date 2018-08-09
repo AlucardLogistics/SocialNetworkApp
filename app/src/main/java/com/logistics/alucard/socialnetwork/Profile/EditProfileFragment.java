@@ -61,54 +61,54 @@ public class EditProfileFragment extends Fragment implements ConfirmPasswordDial
                 .getCredential(mAuth.getCurrentUser().getEmail(), password);
 
         // Prompt the user to re-provide their sign-in credentials
-                mAuth.getCurrentUser().reauthenticate(credential)
-                        .addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                if(task.isSuccessful()) {
-                                    Log.d(TAG, "User re-authenticated.");
+        mAuth.getCurrentUser().reauthenticate(credential)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if(task.isSuccessful()) {
+                            Log.d(TAG, "User re-authenticated.");
 
-                                    //check to see if new email is not taken
-                                    mAuth.fetchSignInMethodsForEmail(mEmail.getText().toString()).addOnCompleteListener(new OnCompleteListener<SignInMethodQueryResult>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<SignInMethodQueryResult> task) {
-                                            if(task.isSuccessful()) {
-                                                try {
-                                                    if(task.getResult().getSignInMethods().isEmpty()) {
-                                                        Log.d(TAG, "onComplete: email is available: " + mEmail.getText().toString());
+                            //check to see if new email is not taken
+                            mAuth.fetchSignInMethodsForEmail(mEmail.getText().toString()).addOnCompleteListener(new OnCompleteListener<SignInMethodQueryResult>() {
+                                @Override
+                                public void onComplete(@NonNull Task<SignInMethodQueryResult> task) {
+                                    if(task.isSuccessful()) {
+                                        try {
+                                            if(task.getResult().getSignInMethods().isEmpty()) {
+                                                Log.d(TAG, "onComplete: email is available: " + mEmail.getText().toString());
 
-                                                        // the email is available to update
-                                                        mAuth.getCurrentUser().updateEmail(mEmail.getText().toString())
-                                                                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                                    @Override
-                                                                    public void onComplete(@NonNull Task<Void> task) {
-                                                                        if (task.isSuccessful()) {
-                                                                            Log.d(TAG, "User email address updated. " + user.getEmail());
-                                                                            Toast.makeText(getActivity(), "Email Updated.", Toast.LENGTH_SHORT).show();
-                                                                            mFirebaseMethods.updateEmail(mEmail.getText().toString());
-                                                                        }
-                                                                    }
-                                                                });
+                                                // the email is available to update
+                                                mAuth.getCurrentUser().updateEmail(mEmail.getText().toString())
+                                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                            @Override
+                                                            public void onComplete(@NonNull Task<Void> task) {
+                                                                if (task.isSuccessful()) {
+                                                                    Log.d(TAG, "User email address updated. " + user.getEmail());
+                                                                    Toast.makeText(getActivity(), "Email Updated.", Toast.LENGTH_SHORT).show();
+                                                                    mFirebaseMethods.updateEmail(mEmail.getText().toString());
+                                                                }
+                                                            }
+                                                        });
 
-                                                    } else if(!task.getResult().getSignInMethods().isEmpty()){
-                                                        Log.d(TAG, "onComplete: email is already in use !" + mEmail.getText().toString());
-                                                        Toast.makeText(getActivity(), "Email is already in use.", Toast.LENGTH_SHORT).show();
-
-                                                    }
-                                                } catch (NullPointerException e) {
-                                                    Log.e(TAG, "onComplete: NullPointerException " + e.getMessage() );
-                                                }
+                                            } else if(!task.getResult().getSignInMethods().isEmpty()){
+                                                Log.d(TAG, "onComplete: email is already in use !" + mEmail.getText().toString());
+                                                Toast.makeText(getActivity(), "Email is already in use.", Toast.LENGTH_SHORT).show();
 
                                             }
+                                        } catch (NullPointerException e) {
+                                            Log.e(TAG, "onComplete: NullPointerException " + e.getMessage() );
                                         }
-                                    });
 
-
-                                } else {
-                                    Log.d(TAG, "onComplete: Re-Authentication failed.");
+                                    }
                                 }
-                            }
-                        });
+                            });
+
+
+                        } else {
+                            Log.d(TAG, "onComplete: Re-Authentication failed.");
+                        }
+                    }
+                });
 
     }
 
@@ -215,12 +215,14 @@ public class EditProfileFragment extends Fragment implements ConfirmPasswordDial
      * Before doing so it checks to make sure the username chosen is unique
      */
     private void saveProfileSettings() {
+        Log.d(TAG, "saveProfileSettings: started");
         final String displayName = mDisplayName.getText().toString();
         final String username = mUsername.getText().toString();
         final String website = mWebsite.getText().toString();
         final String description = mDescription.getText().toString();
         final String email = mEmail.getText().toString();
         final long phoneNumber = Long.parseLong(mPhoneNumber.getText().toString());
+        Log.d(TAG, "saveProfileSettings: ////////phoneNumber is: " + phoneNumber);
 
         myRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
