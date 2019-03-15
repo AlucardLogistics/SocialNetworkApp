@@ -3,9 +3,9 @@ package com.logistics.alucard.socialnetwork.Login;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -23,15 +23,24 @@ import com.logistics.alucard.socialnetwork.Home.HomeActivity;
 import com.logistics.alucard.socialnetwork.R;
 import com.logistics.alucard.socialnetwork.Utils.FirebaseMethods;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class LoginActivity extends AppCompatActivity {
 
     private static final String TAG = "LoginActivity";
 
+    @BindView(R.id.input_email)
+    EditText mEmail;
+    @BindView(R.id.input_password)
+    EditText mPassword;
+    @BindView(R.id.pleaseWait)
+    TextView mPleaseWait;
+
     //widgets
     private Context mContext;
     private ProgressBar mProgressBar;
-    private EditText mEmail, mPassword;
-    private TextView mPleaseWait;
+
 
     //firebase auth
     private FirebaseAuth mAuth;
@@ -39,15 +48,12 @@ public class LoginActivity extends AppCompatActivity {
     private FirebaseMethods firebaseMethods;
 
 
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        ButterKnife.bind(this);
         mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
-        mPleaseWait = (TextView) findViewById(R.id.pleaseWait);
-        mEmail = (EditText) findViewById(R.id.input_email);
-        mPassword = (EditText) findViewById(R.id.input_password);
         mContext = LoginActivity.this;
         firebaseMethods = new FirebaseMethods(mContext);
         Log.d(TAG, "onCreate: login activity started");
@@ -62,7 +68,7 @@ public class LoginActivity extends AppCompatActivity {
     private boolean isStringNull(String string) {
         Log.d(TAG, "isStringNull: check if string is null");
 
-        if(string.equals("")) {
+        if (string.equals("")) {
             return true;
         } else {
             return false;
@@ -84,7 +90,7 @@ public class LoginActivity extends AppCompatActivity {
                 String email = mEmail.getText().toString();
                 String password = mPassword.getText().toString();
 
-                if(isStringNull(email) && isStringNull(password)) {
+                if (isStringNull(email) && isStringNull(password)) {
                     Toast.makeText(mContext, "You must fill all fields", Toast.LENGTH_LONG).show();
                 } else {
                     mProgressBar.setVisibility(View.VISIBLE);
@@ -98,7 +104,7 @@ public class LoginActivity extends AppCompatActivity {
 
                                     FirebaseUser user = mAuth.getCurrentUser();
 
-                                    if(!task.isSuccessful()) {
+                                    if (!task.isSuccessful()) {
                                         Log.w(TAG, "signInWithEmail: failed " + task.getException());
                                         Toast.makeText(LoginActivity.this, getString(R.string.auth_failed), Toast.LENGTH_SHORT).show();
                                         mProgressBar.setVisibility(View.GONE);
@@ -106,7 +112,7 @@ public class LoginActivity extends AppCompatActivity {
 
                                     } else {
                                         try {
-                                            if(user.isEmailVerified()) {
+                                            if (user.isEmailVerified()) {
                                                 Log.d(TAG, "onComplete: success. email was verified.");
                                                 Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
                                                 startActivity(intent);
@@ -141,9 +147,9 @@ public class LoginActivity extends AppCompatActivity {
 
 
         /*
-        * if user is logged in successfully the user will be directed to home activity
-        * */
-        if(mAuth.getCurrentUser() != null) {
+         * if user is logged in successfully the user will be directed to home activity
+         * */
+        if (mAuth.getCurrentUser() != null) {
             Log.d(TAG, "init: go to home activity");
             Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
             startActivity(intent);
@@ -159,7 +165,7 @@ public class LoginActivity extends AppCompatActivity {
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
 
-                if(user != null) {
+                if (user != null) {
                     //User signed in
                     Log.d(TAG, "onAuthStateChanged: signed_in: " + user.getUid());
                 } else {
@@ -179,7 +185,7 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        if(mAuthListener != null) {
+        if (mAuthListener != null) {
             mAuth.removeAuthStateListener(mAuthListener);
         }
     }

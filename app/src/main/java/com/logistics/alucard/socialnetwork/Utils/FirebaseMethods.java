@@ -4,8 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.provider.ContactsContract;
-import android.support.annotation.NonNull;
+
+import androidx.annotation.NonNull;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -31,6 +31,7 @@ import com.logistics.alucard.socialnetwork.Models.UserSettings;
 import com.logistics.alucard.socialnetwork.Profile.AccountSettingsActivity;
 import com.logistics.alucard.socialnetwork.R;
 
+import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -71,7 +72,7 @@ public class FirebaseMethods {
             Log.d(TAG, "uploadNewPhoto: uploading NEW photo");
 
             String user_id = FirebaseAuth.getInstance().getCurrentUser().getUid();
-            StorageReference storageReference = mStorageReference
+            final StorageReference storageReference = mStorageReference
                     .child(filePaths.FIREBASE_IMAGE_STORAGE + "/" + user_id + "/photo" + (count + 1));
 
             //convert image URL to bitmap
@@ -80,18 +81,25 @@ public class FirebaseMethods {
             }
             byte[] bytes = ImageManager.getBytesFromBitmap(bitmap, 100);
 
-            UploadTask uploadTask = null;
-            uploadTask = storageReference.putBytes(bytes);
+            UploadTask uploadTask = storageReference.putBytes(bytes);
 
             uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                    Uri firebaseUrl = taskSnapshot.getDownloadUrl();
-                    //Uri firebaseUrl = taskSnapshot.getStorage().getDownloadUrl().getResult();
-                    Log.d(TAG, "onSuccess: fireBaseURL from getStorage().getDownloadUrl().getResult() is: " + firebaseUrl.toString());
+                    //Task<Uri> firebaseUrl = taskSnapshot.getStorage().getDownloadUrl();
+
+                    storageReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                        @Override
+                        public void onSuccess(Uri uri) {
+                            String firebaseUrl = uri.toString();
+                            Log.d(TAG, "onSuccess: *****NEW PHOTO URL is: " + firebaseUrl);
+                            addPhotoToDatabase(caption, firebaseUrl);
+                        }
+                    });
+                    //Uri firebaseUrl = taskSnapshot.getDownloadUrl();
                     Toast.makeText(mContext, "Photo Upload Success.", Toast.LENGTH_SHORT).show();
                     //add the new photo to 'photo' node and 'user_photos' node
-                    addPhotoToDatabase(caption, firebaseUrl.toString());
+
 
                     //navigate to the main feed so the user can see their photo
                     Intent intent = new Intent(mContext, HomeActivity.class);
@@ -123,7 +131,7 @@ public class FirebaseMethods {
             Log.d(TAG, "uploadNewPhoto: uploading NEW PROFILE photo");
 
             String user_id = FirebaseAuth.getInstance().getCurrentUser().getUid();
-            StorageReference storageReference = mStorageReference
+            final StorageReference storageReference = mStorageReference
                     .child(filePaths.FIREBASE_IMAGE_STORAGE + "/" + user_id + "/profile_photo");
 
             //convert image URL to bitmap
@@ -138,14 +146,16 @@ public class FirebaseMethods {
             uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                    Uri firebaseUrl = taskSnapshot.getDownloadUrl();
-                    //Uri firebaseUrl = taskSnapshot.getStorage().getDownloadUrl().getResult();
-                    Log.d(TAG, "onSuccess: fireBaseURL from getStorage().getDownloadUrl().getResult() is: " + firebaseUrl.toString());
+                    storageReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                        @Override
+                        public void onSuccess(Uri uri) {
+                            String firebaseUrl = uri.toString();
+                            Log.d(TAG, "onSuccess: NEW PROFILE photo is: " + firebaseUrl.toString());
+                            //insert into 'user_account_settings' node
+                            setProfilePhoto(firebaseUrl);
+                        }
+                    });
                     Toast.makeText(mContext, "Photo Upload Success.", Toast.LENGTH_SHORT).show();
-
-                    //insert into 'user_account_settings' node
-                    setProfilePhoto(firebaseUrl.toString());
-
                     //after profile is updated set the current fragment to EditProfileFragment
                     ((AccountSettingsActivity)mContext).setViewPager(
                             ((AccountSettingsActivity)mContext).pagerAdapter
@@ -171,10 +181,6 @@ public class FirebaseMethods {
                     Log.d(TAG, "onProgress: upload progress" + progress + "% done.");
                 }
             });
-
-
-
-
         }
     }
 

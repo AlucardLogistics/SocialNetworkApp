@@ -8,12 +8,12 @@
         <!-- Layout manager that allows the user to flip left and right through pages of data.
         You supply an implementation of a PagerAdapter to generate the pages that the view shows.
          -->
-        <android.support.v4.view.ViewPager
+        <androidx.viewpager.widget.ViewPager
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/viewpager_container">
 
-        </android.support.v4.view.ViewPager>
+        </androidx.viewpager.widget.ViewPager>
 
     </RelativeLayout>
 

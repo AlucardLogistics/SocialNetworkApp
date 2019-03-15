@@ -3,17 +3,15 @@ package com.logistics.alucard.socialnetwork.Chat;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.support.annotation.NonNull;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.appcompat.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -23,6 +21,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -35,11 +34,9 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.logistics.alucard.socialnetwork.Models.Messages;
-import com.logistics.alucard.socialnetwork.Models.User;
 import com.logistics.alucard.socialnetwork.R;
 import com.logistics.alucard.socialnetwork.Utils.FilePaths;
 import com.logistics.alucard.socialnetwork.Utils.MessageRecycleAdapter;
@@ -48,7 +45,6 @@ import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -261,7 +257,7 @@ public class ChatActivity extends AppCompatActivity {
             final String pushID = userMessagePush.getKey();
             FilePaths filePaths = new FilePaths();
 
-            StorageReference filePath = mMessageImageStorage
+            final StorageReference filePath = mMessageImageStorage
                     .child(filePaths.FIREBASE_IMAGE_MESSAGES_STORAGE + mCurrentUserID + "/" + pushID + ".jpg");
             filePath.putFile(imageUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                 @Override
@@ -270,34 +266,39 @@ public class ChatActivity extends AppCompatActivity {
 
                     if(task.isSuccessful()) {
                         Log.d(TAG, "onComplete: message image uploaded to storage");
-                        String downloadUrl = task.getResult().getDownloadUrl().toString();
-
-                        Map messageMap = new HashMap();
-                        messageMap.put("message_id", pushID);
-                        messageMap.put("message", downloadUrl);
-                        messageMap.put("seen", false);
-                        messageMap.put("type", "image");
-                        messageMap.put("time", ServerValue.TIMESTAMP);
-                        messageMap.put("from", mCurrentUserID);
-                        messageMap.put("to", mChatUserID);
-
-                        Map messageUserMap = new HashMap();
-                        messageUserMap.put(currentUserRef + "/" + pushID, messageMap);
-                        messageUserMap.put(chatUserRef + "/" + pushID, messageMap);
-
-                        mChatMessageView.setText("");
-                        Toast.makeText(ChatActivity.this, "Photo shared", Toast.LENGTH_SHORT).show();
-
-                        mRootRef.updateChildren(messageUserMap, new DatabaseReference.CompletionListener() {
+                        filePath.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                             @Override
-                            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                            public void onSuccess(Uri uri) {
+                               String downloadUrl = uri.toString();
 
-                                shareImageLog(); //register image sharing in log node
-                                mProgeressBar.setVisibility(View.GONE);
+                                Map messageMap = new HashMap();
+                                messageMap.put("message_id", pushID);
+                                messageMap.put("message", downloadUrl);
+                                messageMap.put("seen", false);
+                                messageMap.put("type", "image");
+                                messageMap.put("time", ServerValue.TIMESTAMP);
+                                messageMap.put("from", mCurrentUserID);
+                                messageMap.put("to", mChatUserID);
 
-                                if(databaseError != null) {
-                                    Log.d(TAG, "onComplete: there was an error: " + databaseError.getMessage());
-                                }
+                                Map messageUserMap = new HashMap();
+                                messageUserMap.put(currentUserRef + "/" + pushID, messageMap);
+                                messageUserMap.put(chatUserRef + "/" + pushID, messageMap);
+
+                                mChatMessageView.setText("");
+                                Toast.makeText(ChatActivity.this, "Photo shared", Toast.LENGTH_SHORT).show();
+
+                                mRootRef.updateChildren(messageUserMap, new DatabaseReference.CompletionListener() {
+                                    @Override
+                                    public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+
+                                        shareImageLog(); //register image sharing in log node
+                                        mProgeressBar.setVisibility(View.GONE);
+
+                                        if(databaseError != null) {
+                                            Log.d(TAG, "onComplete: there was an error: " + databaseError.getMessage());
+                                        }
+                                    }
+                                });
                             }
                         });
                     }

@@ -2,12 +2,12 @@ package com.logistics.alucard.socialnetwork.Login;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatButton;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -25,16 +25,27 @@ import com.logistics.alucard.socialnetwork.Models.User;
 import com.logistics.alucard.socialnetwork.R;
 import com.logistics.alucard.socialnetwork.Utils.FirebaseMethods;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+
 public class RegisterActivity extends AppCompatActivity {
 
     private static final String TAG = "RegisterActivity";
+    @BindView(R.id.input_email)
+    EditText mEmail;
+    @BindView(R.id.input_username)
+    EditText mUsername;
+    @BindView(R.id.input_password)
+    EditText mPassword;
+    @BindView(R.id.btn_register)
+    AppCompatButton btnRegister;
+    @BindView(R.id.pleaseWait)
+    TextView mPleaseWait;
 
     private Context mContext;
     private ProgressBar mProgressBar;
     private String email = "", password = "", username = "";
-    private EditText mEmail, mPassword, mUsername;
-    private Button btnRegister;
-    private TextView mPleaseWait;
     //string to append to username in case it already exists
     private String append = "";
 
@@ -51,37 +62,35 @@ public class RegisterActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
+        ButterKnife.bind(this);
         mContext = RegisterActivity.this;
         firebaseMethods = new FirebaseMethods(mContext);
         Log.d(TAG, "onCreate: register activity started");
 
         initWidgets();
         setupFirebaseAuth();
-        init();
+        registerUser();
     }
 
-    private void init() {
-        btnRegister.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                email = mEmail.getText().toString();
-                username = mUsername.getText().toString();
-                password = mPassword.getText().toString();
+    @OnClick(R.id.btn_register)
+    public void registerUser() {
+        email = mEmail.getText().toString();
+        username = mUsername.getText().toString();
+        password = mPassword.getText().toString();
 
-                if(checkInputs(email, username, password)) {
-                    mProgressBar.setVisibility(View.VISIBLE);
-                    mPleaseWait.setVisibility(View.VISIBLE);
+        if (checkInputs(email, username, password)) {
+            mProgressBar.setVisibility(View.VISIBLE);
+            mPleaseWait.setVisibility(View.VISIBLE);
 
-                    firebaseMethods.registerNewEmail(email, password, username);
-                }
-            }
-        });
+            firebaseMethods.registerNewEmail(email, password, username);
+        }
     }
+
 
     //check if any fields are empty and display message if any is
     private boolean checkInputs(String email, String username, String password) {
         Log.d(TAG, "checkInputs: checking inputs for null values");
-        if(email.equals("") || username.equals("") || password.equals("")) {
+        if (email.equals("") || username.equals("") || password.equals("")) {
             Toast.makeText(mContext, "All fields must be filled out", Toast.LENGTH_SHORT).show();
             return false;
         }
@@ -93,11 +102,11 @@ public class RegisterActivity extends AppCompatActivity {
         Log.d(TAG, "initWidgets: Initializing Widgets.");
 
         mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
-        mPleaseWait = (TextView) findViewById(R.id.pleaseWait);
-        mEmail = (EditText) findViewById(R.id.input_email);
-        mUsername = (EditText) findViewById(R.id.input_username);
-        mPassword = (EditText) findViewById(R.id.input_password);
-        btnRegister = (Button) findViewById(R.id.btn_register);
+//        mPleaseWait = (TextView) findViewById(R.id.pleaseWait);
+//        mEmail = (EditText) findViewById(R.id.input_email);
+//        mUsername = (EditText) findViewById(R.id.input_username);
+//        mPassword = (EditText) findViewById(R.id.input_password);
+//        btnRegister = (Button) findViewById(R.id.btn_register);
         mContext = RegisterActivity.this;
 
         mProgressBar.setVisibility(View.GONE);
@@ -107,7 +116,7 @@ public class RegisterActivity extends AppCompatActivity {
     private boolean isStringNull(String string) {
         Log.d(TAG, "isStringNull: check if string is null");
 
-        if(string.equals("")) {
+        if (string.equals("")) {
             return true;
         } else {
             return false;
@@ -132,7 +141,7 @@ public class RegisterActivity extends AppCompatActivity {
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 final FirebaseUser user = firebaseAuth.getCurrentUser();
 
-                if(user != null) {
+                if (user != null) {
                     //User signed in
                     Log.d(TAG, "onAuthStateChanged: signed_in " + user.getUid());
                     myRef.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -159,6 +168,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     /**
      * Check if @param username exists in the database
+     *
      * @param username
      */
     private void checkIfUsernameExists(final String username) {
@@ -173,8 +183,8 @@ public class RegisterActivity extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
 
-                for(DataSnapshot singleSnampshot : dataSnapshot.getChildren()) {
-                    if(singleSnampshot.exists()) {
+                for (DataSnapshot singleSnampshot : dataSnapshot.getChildren()) {
+                    if (singleSnampshot.exists()) {
                         Log.d(TAG, "onDataChange: USERNAME" + singleSnampshot.getValue(User.class).getUsername() + "ALREADY EXISTS");
                         append = myRef.push().getKey().substring(3, 7);
                         Log.d(TAG, "onDataChange: username already exists. Appending random string to name " + append);
@@ -209,7 +219,7 @@ public class RegisterActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        if(mAuthListener != null) {
+        if (mAuthListener != null) {
             mAuth.removeAuthStateListener(mAuthListener);
         }
     }

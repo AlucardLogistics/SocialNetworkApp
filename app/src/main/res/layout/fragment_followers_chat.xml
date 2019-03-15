@@ -15,14 +15,14 @@
         android:id="@+id/tvFollowersTab"/>
 
     <!-- TODO: Update blank fragment layout -->
-    <android.support.v7.widget.RecyclerView
+    <androidx.recyclerview.widget.RecyclerView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/following_list"
         android:layout_below="@id/tvFollowersTab"
         android:layout_marginBottom="50dp">
 
-    </android.support.v7.widget.RecyclerView>
+    </androidx.recyclerview.widget.RecyclerView>
 
 
 
